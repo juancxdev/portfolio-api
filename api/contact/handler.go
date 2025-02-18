@@ -66,7 +66,7 @@ func (h *handlerHealth) Health(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(res)
 	}
 
-	params := smtp.MapperSimpleEmailMessage(e.SmtpConfig.To, "onboarding@resend.dev", html, "Envío de correo", []string{
+	params := smtp.MapperSimpleEmailMessage(e.SmtpConfig.To, "onboarding@resend.dev", html, "Correo de contacto", []string{
 		"SMTP_Resend",
 	})
 

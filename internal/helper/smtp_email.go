@@ -73,7 +73,7 @@ func GenerateEmailHTML(email string) (string, error) {
         <div class="email-container">
             <h1 class="title">¡Tenemos buenas noticias!</h1>
             
-            <h2 class="subtitle">Alguien está interesado en contratarte</h2>
+            <h2 class="subtitle">Alguien está interesado en contactarte</h2>
             
             <p class="message">
                 Hola Juan Campos,<br><br>
