@@ -11,7 +11,7 @@ type Service struct {
 }
 
 type GraphQLClient interface {
-	Execute(query string, variables map[string]interface{}, result interface{}) error
+	Execute(query string, variables []*Variable, headers []*Header, result interface{}) error
 }
 
 func NewService(urlGraphQL string) GraphQLClient {
@@ -20,15 +20,21 @@ func NewService(urlGraphQL string) GraphQLClient {
 	}
 }
 
-func (s Service) Execute(query string, variables map[string]interface{}, result interface{}) error {
+func (s Service) Execute(query string, variables []*Variable, headers []*Header, result interface{}) error {
 	ctx := context.Background()
 
 	req := graphql.NewRequest(query)
 
-	req.Header.Set("Cache-Control", "no-cache")
+	if headers != nil {
+		for _, header := range headers {
+			req.Header.Set(header.Key, header.Value)
+		}
+	}
 
-	for key, value := range variables {
-		req.Var(key, value)
+	if variables != nil {
+		for _, variable := range variables {
+			req.Var(variable.Key, variable.Value)
+		}
 	}
 
 	if err := s.client.Run(ctx, req, result); err != nil {

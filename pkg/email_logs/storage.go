@@ -1,5 +1,7 @@
 package email_logs
 
+import graphql_service "portfolio-api/services/graphql"
+
 const (
 	Postgresql = "postgres"
 	SqlServer  = "sqlserver"
@@ -7,7 +9,7 @@ const (
 )
 
 type ServicesEmailLogsRepository interface {
-	create(m *EmailLog) error
+	create(variables []*graphql_service.Variable, headers []*graphql_service.Header) error
 }
 
 func FactoryStorage(graphqlURL string) ServicesEmailLogsRepository {

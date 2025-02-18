@@ -1,13 +1,13 @@
 package contact
 
 import (
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jmoiron/sqlx"
 	"portfolio-api/internal/env"
 	"portfolio-api/internal/helper"
 	"portfolio-api/internal/logger"
 	"portfolio-api/internal/models"
+	"portfolio-api/pkg"
 	"portfolio-api/services/smtp"
 )
 
@@ -62,14 +62,18 @@ func (h *handlerHealth) Health(c *fiber.Ctx) error {
 	})
 
 	srv := smtp.NewService(e.SmtpConfig.ApiKey)
+	srvGraphQL := pkg.NewServerPKG(e.SupaBaseConfig.SupaBaseURL)
+
 	response, err := srv.Send(params)
 	if err != nil {
 		logger.Error.Printf("couldn't login, error: %v", err)
+		srvGraphQL.SrvEmailLog.CreateRegister(response, e.SmtpConfig.To, params.From, params.Subject, params.Html, "error", "")
+
 		res.Code, res.Msg = 11, "Error al enviar el mensaje"
 		return c.Status(fiber.StatusInternalServerError).JSON(res)
 	}
 
-	fmt.Println(response)
+	srvGraphQL.SrvEmailLog.CreateRegister(response, e.SmtpConfig.To, params.From, params.Subject, params.Html, "success", e.SupaBaseConfig.SupaBaseAPIKey)
 
 	res.Error = false
 	res.Code, res.Msg = 210, "Correo enviado correctamente"

@@ -18,7 +18,7 @@ func newGraphQLRepository(graphqlURL string) *graphQLRepository {
 }
 
 // Create registra en la BD
-func (s *graphQLRepository) create(m *EmailLog) (*EmailLogRecord, error) {
+func (s *graphQLRepository) create(variables []*graphql_service.Variable, headers []*graphql_service.Header) error {
 	query := `
         mutation CreateEmailLog($request: email_logInsertInput!) {
   insertIntoemail_logCollection(
@@ -34,38 +34,15 @@ func (s *graphQLRepository) create(m *EmailLog) (*EmailLogRecord, error) {
 }
     `
 
-	variables := map[string]interface{}{
-		"request": map[string]interface{}{
-			"email_to":      m.EmailTo,
-			"email_from":    m.EmailFrom,
-			"subject":       m.Subject,
-			"status":        m.Status,
-			"content":       m.Content,
-			"template_name": m.TemplateName,
-			"template_data": m.TemplateData,
-			"metadata":      m.Metadata,
-		},
-	}
-
-	var response GraphQLResponse
-	err := s.graphqlClient.Execute(query, variables, &response)
+	var response DataGraph
+	err := s.graphqlClient.Execute(query, variables, headers, &response)
 	if err != nil {
-		return nil, fmt.Errorf("create email log error: %w", err)
+		return fmt.Errorf("create email log error: %w", err)
 	}
 
-	// Verificar si se creó al menos un registro
-	if len(response.Data.Collection.Records) == 0 {
-		return nil, fmt.Errorf("no email log record was created")
+	if len(response.Data.InsertIntoemailLogCollection.Records) == 0 {
+		return fmt.Errorf("no email log record was created")
 	}
 
-	// Obtener el primer registro creado
-	record := response.Data.Collection.Records[0]
-
-	// Crear la respuesta
-	return &EmailLogRecord{
-		ID:      record.ID,
-		EmailTo: record.EmailTo,
-		Status:  record.Status,
-		SentAt:  record.SentAt,
-	}, nil
+	return nil
 }
