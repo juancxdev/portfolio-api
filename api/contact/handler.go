@@ -3,6 +3,8 @@ package contact
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/jmoiron/sqlx"
+	"net/http"
+	"portfolio-api/internal/authorization"
 	"portfolio-api/internal/env"
 	"portfolio-api/internal/helper"
 	"portfolio-api/internal/logger"
@@ -26,6 +28,7 @@ type handlerHealth struct {
 // @Failure 500 {object} models.Response "Error interno del servidor"
 // @Router /health [GET]
 func (h *handlerHealth) Health(c *fiber.Ctx) error {
+	e := env.NewConfiguration()
 	res := models.Response{Error: true}
 	req := RequestEmailMessage{}
 
@@ -33,6 +36,14 @@ func (h *handlerHealth) Health(c *fiber.Ctx) error {
 		logger.Error.Printf("couldn't parse body request, error: %v", err)
 		res.Code, res.Msg = 1, "Cuerpo de la petición no válida"
 		return c.Status(fiber.StatusBadRequest).JSON(res)
+	}
+
+	authorize := authorization.Authorize(c.Get("signature"), e.SecretApp, string(c.Body()), c.Path(), c.Method())
+
+	if !authorize {
+		logger.Error.Printf("User not authorized to access this resource.")
+		res.Code, res.Msg = 8, "No tiene autorización para utilizar el api"
+		return c.Status(http.StatusForbidden).JSON(res)
 	}
 
 	isValid, err := req.Valid()
@@ -47,8 +58,6 @@ func (h *handlerHealth) Health(c *fiber.Ctx) error {
 		res.Code, res.Msg = 2, "Datos enviados no cumplen con los requisitos"
 		return c.Status(fiber.StatusBadRequest).JSON(res)
 	}
-
-	e := env.NewConfiguration()
 
 	html, err := helper.GenerateEmailHTML(req.From)
 	if err != nil {

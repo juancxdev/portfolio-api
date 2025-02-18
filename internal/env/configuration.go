@@ -14,6 +14,7 @@ var (
 
 var (
 	portApp        *int
+	secretApp      *string
 	pathLog        *string
 	smtpApiKey     *string
 	smtpTo         *string
@@ -23,6 +24,7 @@ var (
 
 type Configuration struct {
 	Port           int      `json:"port"`
+	SecretApp      string   `json:"secret_app"`
 	LogConfig      Log      `json:"log_config"`
 	SmtpConfig     Smtp     `json:"smtp_config"`
 	SupaBaseConfig SupaBase `json:"supabase_config"`
@@ -45,6 +47,7 @@ type SupaBase struct {
 func init() {
 	// Definir los flags una sola vez durante la inicialización
 	portApp = flag.Int("port", 0, "Puerto para exponer servicio (required)")
+	secretApp = flag.String("secret", "", "Secreto para encryptar información")
 	pathLog = flag.String("log-path", "", "Ruta de logs de aplicación")
 	smtpApiKey = flag.String("smtp-api-key", "", "Api key del smtp")
 	smtpTo = flag.String("smtp-to", "", "To del smtp")
@@ -73,6 +76,12 @@ func validateAndAssignConfig() error {
 		return fmt.Errorf("el puerto debe estar entre 1 y 65535, valor actual: %d", *portApp)
 	}
 	config.Port = *portApp
+
+	if *secretApp == "" {
+		return fmt.Errorf("secret es requerida")
+	}
+
+	config.SecretApp = *secretApp
 
 	// Validar ruta de logs
 	if *pathLog == "" {
