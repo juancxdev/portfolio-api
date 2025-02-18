@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/swagger"
 	"github.com/google/uuid"
 	"portfolio-api/api/contact"
+	"portfolio-api/api/health"
 )
 
 // Se cargan los loggerHttp, y los allowedOrigins (registrosHttp) (permisos de origen)
@@ -43,4 +44,5 @@ func routes() *fiber.App {
 // Aqui se cargan las direcciones o las ubicaciones de las funciones Handler
 func loadRoutes(app *fiber.App, TxID string) {
 	contact.RouterContact(app, TxID)
+	health.RouterHealth(app, TxID)
 }

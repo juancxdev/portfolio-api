@@ -18,16 +18,20 @@ type handlerHealth struct {
 	txID string
 }
 
-// Health godoc
-// @Summary Verificar estado del servicio
-// @Description Endpoint para verificar el estado y conectividad del servicio
-// @Tags Health
+// ContactHandler godoc
+// @Summary Enviar correo de contacto
+// @Description Endpoint para enviar un correo electrónico de contacto
+// @Tags Contact
 // @Accept json
 // @Produce json
-// @Success 201 {object} models.Response "Sistema conectado"
+// @Param signature header string true "Firma de autorización"
+// @Param request body RequestEmailMessage true "Datos del correo"
+// @Success 200 {object} models.Response "Correo enviado correctamente"
+// @Failure 400 {object} models.Response "Error en la validación de datos"
+// @Failure 403 {object} models.Response "Error de autorización"
 // @Failure 500 {object} models.Response "Error interno del servidor"
-// @Router /health [GET]
-func (h *handlerHealth) Health(c *fiber.Ctx) error {
+// @Router /v1/contact [POST]
+func (h *handlerHealth) ContactHandler(c *fiber.Ctx) error {
 	e := env.NewConfiguration()
 	res := models.Response{Error: true}
 	req := RequestEmailMessage{}

@@ -12,7 +12,7 @@ const (
 	website     = "https://juancx.is-a.dev"
 	banner      = `Juancx API`
 	description = `%s - Port: %s
-by BJungle 
+by Juancx 
 Version: %s
 %s`
 )
